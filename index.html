@@ -45,12 +45,6 @@
     #qrcode > img {
       margin: 0 auto;
     }
-    .modal {
-      max-height: 90%;
-    }
-    #share-room-input {
-      min-height: 100px;
-    }
     .warning-text {
       color: hwb(56 17% 21% / 0.764);
       font-weight: bold;
@@ -68,76 +62,35 @@
     <br/>
     <div class="center-align">
       <div id="legal-note">
-        <a id="download-link" href="#">Get Keet</a> <text>if haven't installed 🍐</text>
+        <a id="download-link" href="#" target="_blank">Get Keet</a> <text>if haven't installed 🍐</text>
+        <p class="warning-text"></p>
       </div>
     </div>
   </div>
 
-  <!-- Modal Structure -->
-  <div id="modal1" class="modal">
-    <div class="modal-content">
-      <h4>Get Keet</h4>
-      <p>Please download the Keet app first to join the room.</p>
-      <div id="download-options"></div>
-    </div>
-  </div>
-
-  <div id="share-room-modal" class="modal">
-    <div class="modal-content">
-      <h4>Keet invite convertor</h4>
-      <div class="input-field">
-        <textarea id="share-room-input" class="materialize-textarea"></textarea>
-        <label for="share-room-input">Paste your room invite here</label>
-      </div>
-
-      <div class="center-align">
-        <button id="convert-btn" class="cyan accent-4 waves-effect waves-light btn">Convert to Shareable keetlink</button>
-      </div>
-
-      <div id="converted-link" class="hide">
-        <h6>Your shareable keetlink:</h6>
-        <div id="converted-link-text" class="input-field">
-          <input type="text" id="share-link-output" readonly title="Shareable Keetlink" placeholder="Shareable Keetlink">
-        </div>
-        <button id="copy-link-btn" class="waves-effect waves-light btn">Copy Link</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="lib/materialize.min.js"></script> -->
-  <script src="lib/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
   <script>
-    //If you host elsewhere, define your url here
     var BASE_URL = 'https://keetlink.vercel.app';
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Parse anchor to get key and title
       function parseAnchor(hash) {
         if (!hash) return {};
-
-        // Remove the leading #
         hash = hash.substring(1);
-
         let params = {};
-        // Split by & and process each key=value pair
         hash.split('&').forEach(pair => {
           const [key, value] = pair.split('=');
           if (key && value) {
             params[key] = value;
           }
         });
-
         return params;
       }
 
-      // Get parameters from anchor or URL query
       const anchorParams = parseAnchor(window.location.hash);
       const urlParams = new URLSearchParams(window.location.search);
 
-      // Use anchor key if available, fallback to URL param, then default
       var key = anchorParams.key || urlParams.get('key') || 'yryusd1hecn6uijy9yro73xoco1igd4a8r1qqiuqfdjqt7q9iqbz4hkcmtgf9767xcpo65wh3hycea19j5njghya4tmr8skjzbt98m8i3c';
-      // Use anchor title if available, fallback to URL param, then default
-      // Decode URI component only if title exists
       var title = anchorParams.title ? decodeURIComponent(anchorParams.title) :
                 urlParams.get('title') || key ? '' : 'Pear Community';
 
@@ -147,73 +100,47 @@
       document.getElementById('room-link').textContent = joinLink
       document.getElementById('join-link').href = joinLink;
 
-      var qrcode = new QRCode(document.getElementById("qrcode"), {
-        text: joinLink,
-        width: 200,
-        height: 200
-      });
+      var qr = qrcode(0, 'M');
+      qr.addData(joinLink);
+      qr.make();
+      document.getElementById('qrcode').innerHTML = qr.createImgTag(5);
 
-      // Initialize modals
-      var modals = document.querySelectorAll('.modal');
-      var modalInstances = M.Modal.init(modals);
-
-      // Share room modal functionality
-      var shareRoomLink = document.getElementById('share-room-link');
-      var shareRoomModal = document.getElementById('share-room-modal');
-      var convertBtn = document.getElementById('convert-btn');
-      var copyLinkBtn = document.getElementById('copy-link-btn');
-      var shareRoomInput = document.getElementById('share-room-input');
-      var convertedLinkDiv = document.getElementById('converted-link');
-      var shareLinkOutput = document.getElementById('share-link-output');
-
-      shareRoomLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        var shareRoomModalInstance = M.Modal.getInstance(shareRoomModal);
-        shareRoomModalInstance.open();
-      });
-
-      convertBtn.addEventListener('click', function() {
-        var input = shareRoomInput.value.trim();
-        var pearMatch = input.match(/pear:\/\/keet\/([^,\s]+)/);
-
-        if (pearMatch) {
-          var key = pearMatch[1];
-          var convertedUrl = `${BASE_URL}/keetlink/#key=${key}`;
-          shareLinkOutput.value = convertedUrl;
-          convertedLinkDiv.classList.remove('hide');
-          M.updateTextFields();
-        } else {
-          M.toast({html: 'Please enter a valid Keet room link starting with "pear://keet/"'});
-        }
-      });
-
-      copyLinkBtn.addEventListener('click', function() {
-        shareLinkOutput.select();
-        document.execCommand('copy');
-        M.toast({html: 'Link copied to clipboard!'});
-      });
-
-      // Download keet
       var downloadBtn = document.getElementById('download-link');
-      checkOS();
-
-      function checkOS() {
+      
+      function getDownloadLink() {
         var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        if (!(/windows|macintosh|mac os x|android|iPad|iPhone|iPod/i.test(userAgent))) {
-          downloadBtn.innerHTML = '<a href="https://keet.io">Get App from Keet.io</a>';
-        }
+        
         if (/windows/i.test(userAgent)) {
-          downloadBtn.innerHTML = '<a href="https://keet.io/downloads/2.2.0/Keet.msi">Get Keet for Windows</a>';
+          return {
+            url: 'https://keet.io/downloads/2.2.0/Keet.msi',
+            text: 'Get Keet for Windows'
+          };
         } else if (/macintosh|mac os x/i.test(userAgent)) {
-          downloadBtn.innerHTML = '<a href="https://keet.io/downloads/2.2.0/Keet-Apple-Silicon.dmg">Get Keet for Apple Silicon</a>';
+          return {
+            url: 'https://keet.io/downloads/2.2.0/Keet-Apple-Silicon.dmg',
+            text: 'Get Keet for Apple Silicon'
+          };
         } else if (/android/i.test(userAgent)) {
-          downloadBtn.innerHTML = '<a href="https://play.google.com/store/apps/details?id=io.keet.app">Get Keet from Play Store</a>';
+          return {
+            url: 'https://play.google.com/store/apps/details?id=io.keet.app',
+            text: 'Get Keet from Play Store'
+          };
         } else if (/iPad|iPhone|iPod/i.test(userAgent)) {
-          downloadBtn.innerHTML = '<a href="https://apps.apple.com/us/app/keet-by-holepunch/id6443880549">Get Keet from App Store</a>';
+          return {
+            url: 'https://apps.apple.com/us/app/keet-by-holepunch/id6443880549',
+            text: 'Get Keet from App Store'
+          };
         } else {
-          downloadBtn.innerHTML = '<a href="https://keet.io/downloads/2.2.0/Keet-x64.tar.gz">Get Keet for x86 Linux</a>';
+          return {
+            url: 'https://keet.io/downloads/2.2.0/Keet-x64.tar.gz',
+            text: 'Get Keet for x86 Linux'
+          };
         }
       }
+
+      var downloadInfo = getDownloadLink();
+      downloadBtn.href = downloadInfo.url;
+      downloadBtn.textContent = downloadInfo.text;
     });
   </script>
 </body>
