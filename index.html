@@ -68,10 +68,9 @@
     <br/>
     <div class="center-align">
       <div id="legal-note">
-        <p><a href="#" id="share-room-link">➕ How to Add my room?</a></p>
+      
         <a id="download-link" href="#">Get Keet</a> <text>if haven't installed 🍐</text>
-        <p class="warning-text">⚠️ This is not an official service from Keet.io,
-          <a href="https://github.com/gasolin/keetlink/blob/main/index.html" target="_blank">source</a>.</p>
+       
       </div>
     </div>
   </div>
@@ -100,7 +99,7 @@
       <div id="converted-link" class="hide">
         <h6>Your shareable keetlink:</h6>
         <div id="converted-link-text" class="input-field">
-          <input type="text" id="share-link-output" readonly>
+          <input type="text" id="share-link-output" readonly title="Shareable Keetlink" placeholder="Shareable Keetlink">
         </div>
         <button id="copy-link-btn" class="waves-effect waves-light btn">Copy Link</button>
       </div>
@@ -110,8 +109,8 @@
   <script src="lib/materialize.min.js"></script> -->
   <script src="lib/qrcode.min.js"></script>
   <script>
-    // If you host elsewhere, define your url here
-    var BASE_URL = 'https://gasolin.idv.tw';
+    //If you host elsewhere, define your url here
+    var BASE_URL = 'https://keetlink.vercel.app/';
 
     document.addEventListener('DOMContentLoaded', function() {
       // Parse anchor to get key and title
@@ -138,7 +137,7 @@
       const urlParams = new URLSearchParams(window.location.search);
 
       // Use anchor key if available, fallback to URL param, then default
-      var key = anchorParams.key || urlParams.get('key') || 'yry7g7wa7bmrjd1xxr7ce64581ij3hozq7589xfgxjrm74kgp34o36pwp46ohw4u1w63o6is6sax6j3swgdi66dmti8p8nfuyypfwewbuy';
+      var key = anchorParams.key || urlParams.get('key') || 'yryusd1hecn6uijy9yro73xoco1igd4a8r1qqiuqfdjqt7q9iqbz4hkcmtgf9767xcpo65wh3hycea19j5njghya4tmr8skjzbt98m8i3c';
       // Use anchor title if available, fallback to URL param, then default
       // Decode URI component only if title exists
       var title = anchorParams.title ? decodeURIComponent(anchorParams.title) :
